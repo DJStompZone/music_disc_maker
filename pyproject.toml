@@ -1,0 +1,33 @@
+[project]
+name = "music-disc-maker"
+version = "0.4.3"
+description = "Build scripted Minecraft Bedrock custom music disc add-ons."
+authors = [
+    { name = "DJ Stomp", email = "85457381+DJStompZone@users.noreply.github.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "pillow>=12.2.0,<13.0.0",
+    "tqdm>=4.66.0,<5.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0"
+]
+
+[project.scripts]
+music-disc-maker = "music_disc_maker.__main__:main"
+music-disc-maker-config = "music_disc_maker.config_generator:main"
+
+[tool.poetry]
+packages = [{ include = "music_disc_maker" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
