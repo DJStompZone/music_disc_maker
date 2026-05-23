@@ -95,3 +95,7 @@ For a big messy library, use MusicBrainz Picard or beets to fix the tags first, 
 ```bash
 python -m pytest
 ```
+
+## License
+
+MIT License. See the [LICENSE](LICENSE) file for details.
