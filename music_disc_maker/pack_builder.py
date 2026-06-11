@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from PIL import Image
+from tqdm import tqdm
 
 from music_disc_maker.audio import convert_audio
 from music_disc_maker.generate_js import generate_disc_registry_js, generate_main_js
@@ -46,7 +47,7 @@ class ScriptedDiscPackBuilder:
         built_discs: list[BuiltDisc] = []
         first_icon: Image.Image | None = None
 
-        for disc in self.config.discs:
+        for disc in tqdm(self.config.discs):
             built_disc, icon, texture_entry, sound_definition = self.build_disc_assets(disc)
             built_discs.append(built_disc)
             texture_data[disc.disc_id] = texture_entry

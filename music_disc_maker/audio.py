@@ -18,11 +18,11 @@ def convert_audio(input_file: Path, output_file: Path) -> float:
         "-ac",
         "1",
         "-ar",
-        "44100",
+        "36000",
         "-c:a",
         "libvorbis",
         "-q:a",
-        "4",
+        "3",
         str(output_file),
     ])
 
