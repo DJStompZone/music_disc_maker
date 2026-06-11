@@ -43,11 +43,13 @@ def test_builder_writes_expected_pack_files(monkeypatch, tmp_path: Path) -> None
     item_path = pack_dir / "BP" / "items" / "whiplash.item.json"
     sound_defs_path = pack_dir / "RP" / "sounds" / "sound_definitions.json"
     registry_path = pack_dir / "BP" / "scripts" / "disc_registry.js"
+    main_path = pack_dir / "BP" / "scripts" / "main.js"
     bp_manifest_path = pack_dir / "BP" / "manifest.json"
 
     assert item_path.is_file()
     assert sound_defs_path.is_file()
     assert registry_path.is_file()
+    assert main_path.is_file()
     assert (pack_dir / "RP" / "pack_icon.png").is_file()
     assert (pack_dir / "BP" / "pack_icon.png").is_file()
     assert (tmp_path / "test_discs.mcaddon").is_file()
@@ -62,8 +64,14 @@ def test_builder_writes_expected_pack_files(monkeypatch, tmp_path: Path) -> None
 
     registry = registry_path.read_text(encoding="utf-8")
     assert "dj:whiplash" in registry
+    assert "durationSeconds" in registry
     assert "durationTicks" in registry
     assert "250" in registry
+
+    main_js = main_path.read_text(encoding="utf-8")
+    assert "stompdecks:register_disc" in main_js
+    assert "stompdecks:request_registry" in main_js
+    assert "system.sendScriptEvent" in main_js
 
     manifest = json.loads(bp_manifest_path.read_text(encoding="utf-8"))
     assert any(module.get("type") == "script" for module in manifest["modules"])

@@ -1,18 +1,22 @@
-import textwrap
 import json
+import textwrap
 
 from music_disc_maker.classes import BuiltDisc
 
+
 def generate_disc_registry_js(discs: list[BuiltDisc]) -> str:
-    """Generate the JavaScript registry consumed by the jukebox behavior script."""
+    """Generate the JavaScript registry consumed by jukebox and StompDecks scripts."""
     registry_entries = []
 
     for disc in discs:
         registry_entries.append([
             disc.item_id,
             {
+                "id": disc.disc_id,
+                "itemId": disc.item_id,
                 "soundId": disc.sound_id,
                 "title": disc.title,
+                "durationSeconds": disc.duration_seconds,
                 "durationTicks": disc.duration_ticks,
                 "volume": 1.0,
                 "pitch": 1.0,
@@ -34,10 +38,26 @@ def generate_main_js() -> str:
 
         const STATE_PROPERTY = "custom_discs:active_jukeboxes";
         const RECONCILE_INTERVAL_TICKS = 20;
+        const STOMPDECKS_REGISTER_DISC_EVENT = "stompdecks:register_disc";
+        const STOMPDECKS_REQUEST_REGISTRY_EVENT = "stompdecks:request_registry";
+        const STOMPDECKS_REGISTRY_ANNOUNCE_TICKS = [1, 20, 100, 600];
         const activeJukeboxes = new Map();
 
         system.run(initializePlaybackManager);
         system.runInterval(reconcileActiveJukeboxes, RECONCILE_INTERVAL_TICKS);
+        scheduleStompDecksRegistryAnnouncements();
+
+        system.afterEvents.scriptEventReceive.subscribe((event) => {
+          try {
+            if (event.id !== STOMPDECKS_REQUEST_REGISTRY_EVENT) {
+              return;
+            }
+
+            system.run(announceDiscRegistryToStompDecks);
+          } catch (error) {
+            console.warn(`[custom_discs] StompDecks registry request failed: ${error}`);
+          }
+        });
 
         world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
           try {
@@ -117,6 +137,33 @@ def generate_main_js() -> str:
               console.warn(`[custom_discs] blockExplode cleanup failed: ${error}`);
             }
           });
+        }
+
+        function scheduleStompDecksRegistryAnnouncements() {
+          for (const delay of STOMPDECKS_REGISTRY_ANNOUNCE_TICKS) {
+            system.runTimeout(announceDiscRegistryToStompDecks, delay);
+          }
+        }
+
+        function announceDiscRegistryToStompDecks() {
+          for (const [itemId, disc] of DISC_REGISTRY.entries()) {
+            try {
+              system.sendScriptEvent(STOMPDECKS_REGISTER_DISC_EVENT, JSON.stringify({
+                schemaVersion: 1,
+                source: "music_disc_maker",
+                itemId,
+                id: disc.id,
+                soundId: disc.soundId,
+                title: disc.title,
+                durationSeconds: disc.durationSeconds,
+                durationTicks: disc.durationTicks,
+                volume: typeof disc.volume === "number" ? disc.volume : 1.0,
+                pitch: typeof disc.pitch === "number" ? disc.pitch : 1.0,
+              }));
+            } catch (error) {
+              console.warn(`[custom_discs] Failed to announce ${itemId} to StompDecks: ${error}`);
+            }
+          }
         }
 
         function initializePlaybackManager() {
