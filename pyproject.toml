@@ -1,6 +1,6 @@
 [project]
 name = "music-disc-maker"
-version = "0.5.0"
+version = "1.0.0"
 description = "Build scripted Minecraft Bedrock custom music disc add-ons."
 authors = [
     { name = "DJ Stomp", email = "85457381+DJStompZone@users.noreply.github.com" }
