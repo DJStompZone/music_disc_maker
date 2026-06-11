@@ -10,6 +10,7 @@ from music_disc_maker.defaults import (
     ITEM_FORMAT_VERSION,
     MIN_ENGINE_VERSION,
     PACK_ICON_SIZE,
+    DEFAULT_LOOT_ENABLED,
     SOUND_DEFINITIONS_FORMAT_VERSION,
 )
 
@@ -56,6 +57,8 @@ class BuildConfig:
     comparator_signal_min: int = COMPARATOR_SIGNAL_MIN
     comparator_signal_max: int = COMPARATOR_SIGNAL_MAX
     pack_icon_size: int = PACK_ICON_SIZE
+    icon_layer_source: Path | None = None
+    loot_enabled: bool = DEFAULT_LOOT_ENABLED
 
 
 @dataclass(frozen=True)

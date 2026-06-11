@@ -12,6 +12,7 @@ from music_disc_maker.defaults import (
     CONFIG_FILE_NAMES,
     DEFAULT_COMPARATOR_SIGNAL,
     DEFAULT_DUMMY_RECORD_EVENT,
+    DEFAULT_LOOT_ENABLED,
     DEFAULT_NAMESPACE,
     DEFAULT_PACK_ID,
     DEFAULT_PACK_TITLE,
@@ -109,6 +110,8 @@ def load_build_config(args: argparse.Namespace) -> BuildConfig:
         comparator_signal_min=comparator_min,
         comparator_signal_max=comparator_max,
         pack_icon_size=int(resolve_value(args, raw_config, "pack_icon_size", PACK_ICON_SIZE)),
+        icon_layer_source=resolve_icon_layer_source(args, raw_config, config_base),
+        loot_enabled=resolve_loot_enabled(args, raw_config),
     )
 
 
@@ -209,3 +212,26 @@ def resolve_path(path: Path, base: Path) -> Path:
         return path
 
     return base / path
+
+
+def resolve_icon_layer_source(args: argparse.Namespace, raw_config: dict[str, Any], config_base: Path) -> Path | None:
+    """Resolve an optional custom procedural icon layer source."""
+    cli_value = getattr(args, "icon_layer_source", None)
+
+    if cli_value is not None:
+        return cli_value
+
+    config_value = raw_config.get("icon_layer_source")
+
+    if config_value is None:
+        return None
+
+    return resolve_path(Path(str(config_value)), config_base)
+
+
+def resolve_loot_enabled(args: argparse.Namespace, raw_config: dict[str, Any]) -> bool:
+    """Resolve whether generated chest loot tables should be written."""
+    if getattr(args, "disable_loot", False):
+        return False
+
+    return bool(raw_config.get("loot_enabled", DEFAULT_LOOT_ENABLED))

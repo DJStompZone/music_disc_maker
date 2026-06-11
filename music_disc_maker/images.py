@@ -6,6 +6,8 @@ from typing import Any
 
 from PIL import Image, ImageDraw
 
+from music_disc_maker.disc_icons import render_disc_from_key
+
 
 def get_nearest_resample() -> Any:
     """Return Pillow's nearest-neighbor resample constant across supported versions."""
@@ -18,7 +20,7 @@ def get_nearest_resample() -> Any:
 
 
 def process_icon(template_path: Path, output_path: Path) -> Image.Image:
-    """Create a hue-shifted disc icon from a template, or create a simple fallback icon."""
+    """Create a hue-shifted icon from a template, or create a simple fallback icon."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     if template_path.exists():
@@ -41,6 +43,14 @@ def process_icon(template_path: Path, output_path: Path) -> Image.Image:
 
     final_img.save(output_path)
     return final_img
+
+
+def process_procedural_icon(seed_key: str, output_path: Path, layer_source: Path | None = None) -> Image.Image:
+    """Render a deterministic layered music disc icon."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    icon = render_disc_from_key(seed_key, layer_source=layer_source)
+    icon.save(output_path)
+    return icon
 
 
 def write_pack_icon(icon: Image.Image, pack_path: Path, size: int) -> None:

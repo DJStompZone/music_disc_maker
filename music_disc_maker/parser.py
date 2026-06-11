@@ -14,12 +14,13 @@ from music_disc_maker.defaults import (
     DEFAULT_SERVER_MODULE_VERSION,
     ITEM_FORMAT_VERSION,
     PACK_ICON_SIZE,
+    DEFAULT_LOOT_ENABLED,
     SOUND_DEFINITIONS_FORMAT_VERSION,
 )
 from music_disc_maker.validation import parse_min_engine_version
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Build a scripted Minecraft Bedrock custom music disc add-on.")
     parser.add_argument("input", nargs="?", type=Path, help="Input audio file path for single-disc mode")
@@ -41,5 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sound-definitions-format-version", default=None, help=f"sound_definitions.json format version. Default: {SOUND_DEFINITIONS_FORMAT_VERSION}")
     parser.add_argument("--min-engine-version", type=parse_min_engine_version, default=None, help="Minimum engine version. Default: 1.21.70")
     parser.add_argument("--pack-icon-size", type=int, default=None, help=f"Generated pack_icon.png size. Default: {PACK_ICON_SIZE}")
+    parser.add_argument("--icon-layer-source", type=Path, default=None, help="Optional custom procedural icon layer directory or .zip file.")
+    parser.add_argument("--disable-loot", action="store_true", help=f"Disable generated chest loot tables. Default loot enabled: {DEFAULT_LOOT_ENABLED}")
     parser.add_argument("--output-root", type=Path, default=None, help="Directory where generated packs are written")
-    return parser.parse_args()
+    return parser.parse_args(argv)

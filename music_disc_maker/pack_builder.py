@@ -7,9 +7,10 @@ from PIL import Image
 
 from music_disc_maker.audio import convert_audio
 from music_disc_maker.generate_js import generate_disc_registry_js, generate_main_js
-from music_disc_maker.images import process_icon, write_pack_icon
+from music_disc_maker.images import process_procedural_icon, write_pack_icon
 from music_disc_maker.io_utils import clean_output_dir, create_mcaddon, generate_uuid, write_json, write_text, zip_directory
 from music_disc_maker.manifests import write_manifest
+from music_disc_maker.loot import build_patched_loot_table, build_random_disc_loot_table, default_loot_targets
 from music_disc_maker.models import BuildConfig, BuiltDisc, DiscInput, PackPaths
 
 
@@ -62,6 +63,7 @@ class ScriptedDiscPackBuilder:
 
         self.write_resource_pack_files(texture_data, sound_definitions)
         self.write_behavior_pack_files(built_discs)
+        self.write_loot_tables(built_discs)
         self.write_manifests(rp_uuid=rp_uuid, bp_uuid=bp_uuid)
 
         rp_out = self.config.output_root / f"{self.config.pack_id}_RP.mcpack"
@@ -96,9 +98,10 @@ class ScriptedDiscPackBuilder:
         item_id = f"{self.config.namespace}:{disc.disc_id}"
         sound_path_no_ext = f"sounds/music/game/records/{disc.disc_id}"
 
-        icon = process_icon(
-            template_path=Path("record_template.png"),
+        icon = process_procedural_icon(
+            seed_key=f"{self.config.namespace}:{disc.disc_id}:{disc.title}",
             output_path=self.paths.rp_path / "textures" / "items" / f"{disc.disc_id}.png",
+            layer_source=self.config.icon_layer_source,
         )
 
         duration_seconds = convert_audio(
@@ -198,6 +201,23 @@ class ScriptedDiscPackBuilder:
             },
         })
 
+
+    def write_loot_tables(self, built_discs: list[BuiltDisc]) -> None:
+        """Write optional generated chest loot tables for custom discs."""
+        if not self.config.loot_enabled:
+            return
+
+        write_json(
+            self.paths.bp_path / "loot_tables" / "custom_discs" / "random_disc.json",
+            build_random_disc_loot_table(built_discs),
+        )
+
+        for target in default_loot_targets():
+            write_json(
+                self.paths.bp_path / "loot_tables" / target.path,
+                build_patched_loot_table(target.name),
+            )
+
     def write_manifests(self, rp_uuid: str, bp_uuid: str) -> None:
         """Write resource and behavior pack manifests."""
         write_manifest(
@@ -227,6 +247,7 @@ class ScriptedDiscPackBuilder:
         print(f"Created: {bp_out}")
         print(f"Created: {addon_out}")
         print(f"Script module: @minecraft/server {self.config.server_module_version}")
+        print(f"Loot tables: {'enabled' if self.config.loot_enabled else 'disabled'}")
         print("Generated discs:")
 
         for disc in built_discs:

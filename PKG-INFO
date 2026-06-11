@@ -1,3 +1,21 @@
+Metadata-Version: 2.4
+Name: music-disc-maker
+Version: 0.5.0
+Summary: Build scripted Minecraft Bedrock custom music disc add-ons.
+License-File: LICENSE
+Author: DJ Stomp
+Author-email: 85457381+DJStompZone@users.noreply.github.com
+Requires-Python: >=3.12,<4.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Provides-Extra: dev
+Requires-Dist: pillow (>=12.2.0,<13.0.0)
+Requires-Dist: pytest (>=8.0.0) ; extra == "dev"
+Requires-Dist: tqdm (>=4.66.0,<5.0.0)
+Description-Content-Type: text/markdown
+
 # music-disc-maker
 
 Build scripted Minecraft Bedrock custom music disc add-ons without globally replacing vanilla sound effects.
@@ -32,9 +50,6 @@ default_comparator_signal = 13
 comparator_signal_min = 1
 comparator_signal_max = 13
 pack_icon_size = 256
-loot_enabled = true
-# Optional: point at a custom layer directory or zip matching the bundled layer names.
-# icon_layer_source = "disc_layers"
 
 [[discs]]
 input = "audio/whiplash.mp3"
@@ -59,61 +74,6 @@ music-disc-maker --config music_disc_maker.toml
 If `--config` is omitted, the tool checks the current directory for common config names such as `music_disc_maker.toml`, `music-disc-maker.toml`, `.music-disc-maker.toml`, JSON equivalents, `discs.json`, and `[tool.music-disc-maker]` / `[tool.music_disc_maker]` in `pyproject.toml`.
 
 CLI arguments override config-file values where applicable. Config-file paths are resolved relative to the config file, not wherever your shell happens to be yelling from.
-
-
-## Procedural icons
-
-Generated item icons now use bundled layered 16x16 disc assets instead of the old one-color fallback puck. The generator derives a deterministic icon from the disc namespace, ID, and title, so rebuilding the same pack keeps the same icon.
-
-To use your own layer set, provide either a directory or zip containing files named like:
-
-```text
-layer1_outer.png
-layer2_surface.png
-layer2_surface_alt.png
-layer3_accent.png
-layer3_accent_alt.png
-layer4_edge.png
-layer4_edge_alt.png
-layer5_inner_a.png
-layer5_inner_a_alt.png
-layer6_inner_b.png
-layer6_inner_b_alt.png
-layer7_center.png
-```
-
-Then set it in config:
-
-```toml
-icon_layer_source = "assets/disc_layers.zip"
-```
-
-Or pass it on the CLI:
-
-```bash
-music-disc-maker --config music_disc_maker.toml --icon-layer-source assets/disc_layers.zip
-```
-
-## Loot tables
-
-By default, the behavior pack writes chest loot tables for:
-
-- `chests/simple_dungeon`
-- `chests/abandoned_mineshaft`
-- `chests/stronghold_corridor`
-- `chests/ancient_city`
-
-The generated tables preserve the bundled vanilla entries for those four targets and append a small extra custom-disc pool. Disable this with:
-
-```toml
-loot_enabled = false
-```
-
-Or from the CLI:
-
-```bash
-music-disc-maker --config music_disc_maker.toml --disable-loot
-```
 
 
 ## Generate a config from audio files
@@ -157,3 +117,4 @@ python -m pytest
 ## License
 
 MIT License. See the [LICENSE](LICENSE) file for details.
+

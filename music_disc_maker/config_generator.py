@@ -13,6 +13,7 @@ from typing import Iterable, Iterator, Sequence
 from music_disc_maker.defaults import (
     DEFAULT_COMPARATOR_SIGNAL,
     DEFAULT_DUMMY_RECORD_EVENT,
+    DEFAULT_LOOT_ENABLED,
     DEFAULT_NAMESPACE,
     DEFAULT_PACK_ID,
     DEFAULT_PACK_TITLE,
@@ -375,6 +376,7 @@ def render_config_toml(
     min_engine_version: Sequence[int] = MIN_ENGINE_VERSION,
     default_comparator_signal: int = DEFAULT_COMPARATOR_SIGNAL,
     pack_icon_size: int = PACK_ICON_SIZE,
+    loot_enabled: bool = DEFAULT_LOOT_ENABLED,
 ) -> str:
     """Render a complete music_disc_maker.toml file."""
     lines = [
@@ -394,6 +396,7 @@ def render_config_toml(
         f"min_engine_version = {toml_int_array(min_engine_version)}",
         f"default_comparator_signal = {int(default_comparator_signal)}",
         f"pack_icon_size = {int(pack_icon_size)}",
+        f"loot_enabled = {toml_bool(loot_enabled)}",
         "",
     ])
 
@@ -527,3 +530,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def toml_bool(value: bool) -> str:
+    """Return a TOML boolean literal."""
+    return "true" if value else "false"
